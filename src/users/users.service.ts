@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { hashPassword } from 'src/utils/bcrypt';
@@ -12,7 +12,25 @@ export class UsersService {
     @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
+  async findOneByEmail(email: string): Promise<User | null> {
+    const foundUser = await this.usersRepository.findOne({
+      where: {
+        email,
+      },
+    });
+    return foundUser;
+  }
+
+  async create(createUserDto: CreateUserDto) {
+    const foundUser = await this.findOneByEmail(createUserDto.email);
+
+    if (foundUser) {
+      throw new HttpException(
+        'El correo ya se encuentra registrado.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     const newUser = {
       ...createUserDto,
       password: hashPassword(createUserDto.password),
