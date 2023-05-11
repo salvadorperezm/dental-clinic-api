@@ -1,10 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { hashPassword } from 'src/utils/bcrypt';
-import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { hashPassword } from 'src/utils/bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -22,6 +23,13 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
+    if (createUserDto.password !== createUserDto.confirmPassword) {
+      throw new HttpException(
+        'Las contraseñas no coinciden.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     const foundUser = await this.findOneByEmail(createUserDto.email);
 
     if (foundUser) {
