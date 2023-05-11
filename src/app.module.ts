@@ -4,9 +4,14 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { pgConfigAsync } from './config/postgres.config';
+import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), TypeOrmModule.forRootAsync(pgConfigAsync)],
+  imports: [
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRootAsync(pgConfigAsync),
+    UsersModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
