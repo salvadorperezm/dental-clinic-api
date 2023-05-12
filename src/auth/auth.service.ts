@@ -1,15 +1,18 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
+import { SignInDto } from './dto/sign-in.dto';
 import { UsersService } from 'src/users/users.service';
 import { comparePasswords } from 'src/utils/bcrypt';
-import { SignInDto } from './dto/sign-in.dto';
-import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
-  async signIn(signInDto: SignInDto): Promise<User | null> {
+  async signIn(signInDto: SignInDto) {
     const foundUser = await this.usersService.findOneByEmail(signInDto.email);
 
     if (!foundUser) {
@@ -23,8 +26,10 @@ export class AuthService {
       throw new HttpException('Contraseña incorrecta.', HttpStatus.FORBIDDEN);
     }
 
-    const { password, ...result } = foundUser;
+    const payload = { email: foundUser.email, sub: foundUser.id };
 
-    return foundUser;
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+    };
   }
 }
