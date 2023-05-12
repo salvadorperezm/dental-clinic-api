@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import { SignInDto } from './dto/sign-in.dto';
 import { UsersService } from 'src/users/users.service';
 import { comparePasswords } from 'src/utils/bcrypt';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -12,24 +12,27 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signIn(signInDto: SignInDto) {
-    const foundUser = await this.usersService.findOneByEmail(signInDto.email);
+  async validateUser(email: string, pass: string) {
+    const foundUser = await this.usersService.findOneByEmail(email);
 
     if (!foundUser) {
-      throw new HttpException(
-        'El correo no pertenece a ningun usuario.',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Usuario no encontrado.', HttpStatus.NOT_FOUND);
     }
 
-    if (comparePasswords(signInDto.password, foundUser.password) === false) {
+    if (comparePasswords(pass, foundUser.password) === false) {
       throw new HttpException('Contraseña incorrecta.', HttpStatus.FORBIDDEN);
     }
 
-    const payload = { email: foundUser.email, sub: foundUser.id };
+    const { password, ...result } = foundUser;
+
+    return foundUser;
+  }
+
+  async login(user: User) {
+    const payload = { email: user.email, sub: user.id };
 
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: this.jwtService.sign(payload),
     };
   }
 }
