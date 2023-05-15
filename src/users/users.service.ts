@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { hashPassword } from 'src/utils/bcrypt';
+import { hashPassword } from '../utils/bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -50,15 +50,37 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    const foundUser = await this.usersRepository.findOne(id);
+
+    if (!foundUser) {
+      throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+    }
+
+    return foundUser;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const foundUser = await this.findOne(id);
+
+    const updatedUser = {
+      firstName: updateUserDto.firstName || foundUser.email,
+      lastName: updateUserDto.lastName || foundUser.lastName,
+      email: updateUserDto.email || foundUser.email,
+      role: updateUserDto.role || foundUser.role,
+    };
+
+    return await this.usersRepository.update(
+      {
+        id: foundUser.id,
+      },
+      updatedUser,
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    const foundUser = await this.findOne(id);
+
+    return this.usersRepository.softDelete(foundUser.id);
   }
 }
