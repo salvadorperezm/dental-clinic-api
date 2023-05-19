@@ -3,11 +3,13 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 import Role from '../enum/roles.enum';
+import { Appointment } from 'src/appointments/entities/appointment.entity';
 
 @Entity('users')
 export class User {
@@ -32,6 +34,9 @@ export class User {
     default: [Role.User],
   })
   role: Role;
+
+  @ManyToMany(() => Appointment)
+  appointments: Appointment[];
 
   @CreateDateColumn()
   createdAt: Date;
