@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -35,7 +36,8 @@ export class User {
   })
   role: Role;
 
-  @ManyToMany(() => Appointment)
+  @ManyToMany(() => Appointment, (appointment) => appointment.users)
+  @JoinTable()
   appointments: Appointment[];
 
   @CreateDateColumn()
