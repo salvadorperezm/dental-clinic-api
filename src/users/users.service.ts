@@ -83,4 +83,17 @@ export class UsersService {
 
     return this.usersRepository.softDelete(foundUser.id);
   }
+
+  async getUserWithAppointments(id: number) {
+    const foundUser = await this.findOne(id);
+
+    const foundUserWithRelations = await this.usersRepository.findOne({
+      where: {
+        id: foundUser.id,
+      },
+      relations: ['appointments'],
+    });
+
+    return foundUserWithRelations.appointments;
+  }
 }

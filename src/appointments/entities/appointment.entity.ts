@@ -3,7 +3,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -25,8 +24,7 @@ export class Appointment {
   @Column({ default: false })
   isCompleted: boolean;
 
-  @ManyToMany(() => User)
-  @JoinTable()
+  @ManyToMany(() => User, (user) => user.appointments)
   users: User[];
 
   @CreateDateColumn()
