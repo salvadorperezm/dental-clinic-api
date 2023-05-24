@@ -46,8 +46,12 @@ export class UsersService {
     return this.usersRepository.save(newUser);
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() {
+    return await this.usersRepository.find({
+      order: {
+        id: 'ASC',
+      },
+    });
   }
 
   async findOne(id: number) {
