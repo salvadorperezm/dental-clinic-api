@@ -55,7 +55,6 @@ export class UsersController {
   }
 
   @Get(':id/appointments')
-  @UseGuards(RoleGuard(Role.User))
   @UseGuards(JwtAuthGuard)
   getUserWithAppointments(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.getUserWithAppointments(id);
