@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UseGuards,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
@@ -11,9 +6,6 @@ import { UsersService } from 'src/users/users.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Appointment } from './entities/appointment.entity';
 import { Repository } from 'typeorm';
-import RoleGuard from 'src/users/guards/user-role.guard';
-import Role from 'src/users/enum/roles.enum';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Injectable()
 export class AppointmentsService {
@@ -55,18 +47,36 @@ export class AppointmentsService {
     return `This action returns all appointments`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} appointment`;
+  async findOne(id: number) {
+    const foundAppointment = await this.appointmentsRepository.findOne(id);
+
+    if (!foundAppointment) {
+      throw new HttpException('Appointment not found.', HttpStatus.NOT_FOUND);
+    }
+
+    return foundAppointment;
   }
 
-  @UseGuards(RoleGuard(Role.Admin))
-  @UseGuards(JwtAuthGuard)
-  update(id: number, updateAppointmentDto: UpdateAppointmentDto) {
-    return `This action updates a #${id} appointment`;
+  async update(id: number, updateAppointmentDto: UpdateAppointmentDto) {
+    const foundAppointment = await this.findOne(id);
+
+    const updatedAppointment = {
+      scheduledDate:
+        updateAppointmentDto.scheduledDate || foundAppointment.scheduledDate,
+      isConfirmed:
+        updateAppointmentDto.isConfirmed || foundAppointment.isConfirmed,
+      isCompleted:
+        updateAppointmentDto.isCompleted || foundAppointment.isCompleted,
+    };
+
+    return await this.appointmentsRepository.update(
+      {
+        id: foundAppointment.id,
+      },
+      updatedAppointment,
+    );
   }
 
-  @UseGuards(RoleGuard(Role.Admin))
-  @UseGuards(JwtAuthGuard)
   remove(id: number) {
     return `This action removes a #${id} appointment`;
   }
