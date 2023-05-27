@@ -1,8 +1,10 @@
+import { Supplier } from 'src/suppliers/entities/supplier.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -11,6 +13,9 @@ import {
 export class Material {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @ManyToOne(() => Supplier, (supplier) => supplier.materials)
+  supplier: Supplier;
 
   @Column()
   materialName: string;

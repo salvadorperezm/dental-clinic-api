@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { MaterialsModule } from './materials/materials.module';
+import { SuppliersModule } from './suppliers/suppliers.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { MaterialsModule } from './materials/materials.module';
     AuthModule,
     AppointmentsModule,
     MaterialsModule,
+    SuppliersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
