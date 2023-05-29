@@ -4,16 +4,27 @@ import { UpdateMaterialDto } from './dto/update-material.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Material } from './entities/material.entity';
 import { Repository } from 'typeorm';
+import { SuppliersService } from 'src/suppliers/suppliers.service';
 
 @Injectable()
 export class MaterialsService {
   constructor(
+    private suppliersService: SuppliersService,
     @InjectRepository(Material)
     private materialsRepository: Repository<Material>,
   ) {}
 
-  create(createMaterialDto: CreateMaterialDto) {
-    return this.materialsRepository.save(createMaterialDto);
+  async create(createMaterialDto: CreateMaterialDto) {
+    const foundSupplier = await this.suppliersService.findOne(
+      createMaterialDto.supplierId,
+    );
+
+    const newMaterial = {
+      supplier: foundSupplier,
+      ...createMaterialDto,
+    };
+
+    return this.materialsRepository.save(newMaterial);
   }
 
   findAll() {
@@ -21,6 +32,7 @@ export class MaterialsService {
       order: {
         id: 'ASC',
       },
+      relations: ['supplier'],
     });
   }
 
