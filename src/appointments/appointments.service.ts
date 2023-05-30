@@ -44,7 +44,11 @@ export class AppointmentsService {
   }
 
   findAll() {
-    return `This action returns all appointments`;
+    return this.appointmentsRepository.find({
+      order: {
+        id: 'ASC',
+      },
+    });
   }
 
   async findOne(id: number) {

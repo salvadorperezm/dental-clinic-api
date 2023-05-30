@@ -14,6 +14,7 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
@@ -34,7 +35,6 @@ export class AppointmentsController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
   update(
     @Param('id') id: string,
     @Body() updateAppointmentDto: UpdateAppointmentDto,
